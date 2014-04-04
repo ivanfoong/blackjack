@@ -32,70 +32,66 @@ public class GameHand {
         Integer totalCardValue = 0;
 
         for (Card card : mCards) {
-            if (card.getCardValue()== CardValue.ACE) {
-                numberOfAceCards++;
-            }
-            else {
-                Integer value = 0;
-                switch (card.getCardValue()) {
-                    case TWO: {
-                        value = 2;
-                        break;
-                    }
-                    case THREE: {
-                        value = 3;
-                        break;
-                    }
-                    case FOUR: {
-                        value = 4;
-                        break;
-                    }
-                    case FIVE: {
-                        value = 5;
-                        break;
-                    }
-                    case SIX: {
-                        value = 6;
-                        break;
-                    }
-                    case SEVEN: {
-                        value = 7;
-                        break;
-                    }
-                    case EIGHT: {
-                        value = 8;
-                        break;
-                    }
-                    case NINE: {
-                        value = 9;
-                        break;
-                    }
-                    case JACK:
-                    case QUEEN:
-                    case KING:
-                    case TEN: {
-                        value = 10;
-                        break;
-                    }
-                    default: {
-                    }
+            Integer value = 0;
+            switch (card.getCardValue()) {
+                case ACE: {
+                    numberOfAceCards++;
+                    value = 1;
+                    break;
                 }
-
-                totalCardValue += value;
+                case TWO: {
+                    value = 2;
+                    break;
+                }
+                case THREE: {
+                    value = 3;
+                    break;
+                }
+                case FOUR: {
+                    value = 4;
+                    break;
+                }
+                case FIVE: {
+                    value = 5;
+                    break;
+                }
+                case SIX: {
+                    value = 6;
+                    break;
+                }
+                case SEVEN: {
+                    value = 7;
+                    break;
+                }
+                case EIGHT: {
+                    value = 8;
+                    break;
+                }
+                case NINE: {
+                    value = 9;
+                    break;
+                }
+                case JACK:
+                case QUEEN:
+                case KING:
+                case TEN: {
+                    value = 10;
+                    break;
+                }
+                default: {
+                }
             }
+
+            totalCardValue += value;
         }
 
         // handle special value calculation for "Ace"
         //   "A player and the dealer can count his or her own ace as 1 point or 11 points." - http://en.wikipedia.org/wiki/Blackjack
         for (int i=0; i<numberOfAceCards; i++) {
-            Integer aceValue;
-            if (totalCardValue >= 10) {
-                aceValue = 11;
+            Integer totalCardValueAwayFromBusting = 21 - totalCardValue;
+            if (totalCardValueAwayFromBusting >= 10) {
+                totalCardValue += 10;
             }
-            else {
-                aceValue = 1;
-            }
-            totalCardValue += aceValue;
         }
 
         return totalCardValue;

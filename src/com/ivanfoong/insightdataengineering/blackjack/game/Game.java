@@ -1,5 +1,6 @@
 package com.ivanfoong.insightdataengineering.blackjack.game;
 
+import com.ivanfoong.insightdataengineering.blackjack.user.Dealer;
 import com.ivanfoong.insightdataengineering.blackjack.user.Player;
 
 import java.util.Hashtable;
@@ -8,16 +9,23 @@ import java.util.Hashtable;
  * Created by ivanfoong on 4/4/14.
  */
 public class Game {
+    private Dealer mDealer;
     private GameHand mDealerHand;
-    private Hashtable<Player, GameHand> mPlayersHands;
+    private Hashtable<Player, PlayerGame> mPlayerGames;
 
-    public Game() {
-        mPlayersHands = new Hashtable<Player, GameHand>();
+    public Game(final Dealer aDealer) {
+        mDealer = aDealer;
+        mPlayerGames = new Hashtable<Player, PlayerGame>();
     }
 
-    public Game(final GameHand aDealerHand, final Hashtable<Player, GameHand> aPlayersHands) {
+    public Game(final Dealer aDealer, final GameHand aDealerHand, final Hashtable<Player, PlayerGame> aPlayerGames) {
+        mDealer = aDealer;
         mDealerHand = aDealerHand;
-        mPlayersHands = aPlayersHands;
+        mPlayerGames = aPlayerGames;
+    }
+
+    public Dealer getDealer() {
+        return mDealer;
     }
 
     public GameHand getDealerHand() {
@@ -28,18 +36,15 @@ public class Game {
         mDealerHand = aDealerHand;
     }
 
-    public Hashtable<Player, GameHand> getPlayersHands() {
-        return mPlayersHands;
+    public Hashtable<Player, PlayerGame> getPlayerGames() {
+        return mPlayerGames;
     }
 
-    public GameHand getPlayerHand(final Player aPlayer) {
-        if (mPlayersHands.get(aPlayer) == null) {
-            mPlayersHands.put(aPlayer, new GameHand());
-        }
-        return mPlayersHands.get(aPlayer);
+    public PlayerGame getPlayerGame(final Player aPlayer) {
+        return mPlayerGames.get(aPlayer);
     }
 
-    public void addPlayerHand(final Player aPlayer, final GameHand aGameHand) {
-        mPlayersHands.put(aPlayer, aGameHand);
+    public void addPlayerGame(final Player aPlayer, final PlayerGame aPlayerGame) {
+        mPlayerGames.put(aPlayer, aPlayerGame);
     }
 }
