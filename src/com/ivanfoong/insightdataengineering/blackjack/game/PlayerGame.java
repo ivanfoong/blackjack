@@ -9,11 +9,13 @@ public class PlayerGame {
     private Player mPlayer;
     private GameHand mGameHand;
     private Integer mBetAmount;
+    private boolean isDoubleBet;
 
     public PlayerGame(final Player aPlayer, final GameHand aGameHand, final Integer aBetAmount) {
         mPlayer = aPlayer;
         mGameHand = aGameHand;
         mBetAmount = aBetAmount;
+        isDoubleBet = false;
     }
 
     public Player getPlayer() {
@@ -26,5 +28,13 @@ public class PlayerGame {
 
     public Integer getBetAmount() {
         return mBetAmount;
+    }
+
+    public boolean isDoubleBet() {
+        return isDoubleBet;
+    }
+
+    public void setDoubleBet(final boolean aIsDoubleBet) {
+        isDoubleBet = aIsDoubleBet;
     }
 }

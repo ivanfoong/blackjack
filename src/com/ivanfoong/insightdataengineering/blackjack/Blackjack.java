@@ -229,7 +229,11 @@ public class Blackjack {
                 gameStatus = GameStatus.BUST;
             }
 
-            final Double betAmount = playerGame.getBetAmount().doubleValue();
+            Double betAmount = playerGame.getBetAmount().doubleValue();
+            if (playerGame.isDoubleBet()) {
+                betAmount = betAmount * 2.0;
+            }
+
             String status = "";
             switch (gameStatus) {
                 case WIN_BLACKJACK: {
@@ -288,23 +292,28 @@ public class Blackjack {
         String inputString = "";
 
         while(aPlayerGame.getGameHand().getTotalCardsValue() < 21 && !inputString.equals("s")) {
-            System.out.print("< h(hit) / s(stand) / sp(split) / d(double) / q(quit)?: ");
+            boolean isDoublePossible = (aPlayerGame.getGameHand().getCards().size() == 2);
+            boolean isSplitPossible = false;
+
+            System.out.print("< h(hit) / s(stand)" + (isSplitPossible?" / sp(split)":"") + (isDoublePossible?" / d(double)?":"") + ": ");
             inputString = aScanner.nextLine();
 
             if (inputString.equals("h")) {
                 aPlayerGame.getGameHand().addCard(aCardShoe.popFirstCard());
                 System.out.println(aPlayerGame.getPlayer().getName() + ": " + generateCardValueString(aPlayerGame.getGameHand()));
             }
-            else if (inputString.equals("sp")) {
+            else if (isSplitPossible && inputString.equals("sp")) {
                 // TODO
                 System.out.println("Not implemented yet!");
             }
-            else if (inputString.equals("d")) {
-                // TODO
-                System.out.println("Not implemented yet!");
-            }
-            else if (inputString.equals("q")) {
-                System.exit(0);
+            else if (isDoublePossible && inputString.equals("d")) {
+                Integer doubleBetTopupAmount = aPlayerGame.getBetAmount();
+                aPlayerGame.getPlayer().getWallet().decreaseValue(doubleBetTopupAmount.doubleValue());
+                aPlayerGame.setDoubleBet(true);
+
+                aPlayerGame.getGameHand().addCard(aCardShoe.popFirstCard());
+                System.out.println(aPlayerGame.getPlayer().getName() + ": " + generateCardValueString(aPlayerGame.getGameHand()));
+                break;
             }
         }
     }
