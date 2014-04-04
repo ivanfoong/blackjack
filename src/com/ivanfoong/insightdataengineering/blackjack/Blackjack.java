@@ -57,7 +57,7 @@ public class Blackjack {
     private static final Integer BLACKJACK_INITIAL_DEALED_CARDS_COUNT = 2;
     private static final String UNKNOWN_CARD_VALUE_STRING = "?";
     private static final Integer DEALER_STAND_ON_TOTAL_CARDS_VALUE = 17;
-    private static final boolean DEBUGGING = true;
+    private static final boolean DEBUGGING = false;
 
     public static void main(final String[] aArguments) {
         startBlackjack();
@@ -73,7 +73,7 @@ public class Blackjack {
         cardShoe.shuffleCards(); // using automatic card shuffler and shoe
         CardDiscardHolder cardDiscardHolder = new CardDiscardHolder();
         Dealer dealer = new Dealer(DEALER_STARTING_TOTAL_CHIP_VALUE);
-        Player player = new Player(PLAYER_STARTING_TOTAL_CHIP_VALUE, "player");
+        Player player = new Player(PLAYER_STARTING_TOTAL_CHIP_VALUE, "Player");
 
         Scanner scanner = new Scanner(System.in);
         // END setup
@@ -84,7 +84,7 @@ public class Blackjack {
         scanner.close();
         // END cleanup
 
-        System.out.println("Player have no more chips, blackjack game ended.");
+        System.out.println("> Player have no more chips, blackjack game ended.");
     }
 
     private static boolean startGame(final Scanner aScanner, final CardShoe aCardShoe, final CardDiscardHolder aCardDiscardHolder, final Dealer aDealer, final Player aPlayer) {
@@ -191,6 +191,7 @@ public class Blackjack {
                     break;
                 }
             }
+            System.out.println("- - - - - - - - - - - -");
             System.out.println(player.getName() + " " + status + "!");
         }
     }
@@ -199,8 +200,9 @@ public class Blackjack {
         System.out.println("Dealer: " + generateCardValueString(aDealerGameHand));
 
         while (aDealerGameHand.getTotalCardsValue() < DEALER_STAND_ON_TOTAL_CARDS_VALUE) {
-            System.out.println("Dealer hits!");
-            aDealerGameHand.addCard(aCardShoe.popFirstCard());
+            Card dealedCard = aCardShoe.popFirstCard();
+            System.out.println("> Dealer draws " + dealedCard.getCardValueString() + "!");
+            aDealerGameHand.addCard(dealedCard);
             System.out.println("Dealer: " + generateCardValueString(aDealerGameHand));
         }
     }
@@ -209,7 +211,7 @@ public class Blackjack {
         String inputString = "";
 
         while(aPlayerGame.getGameHand().getTotalCardsValue() < 21 && !inputString.equals("s")) {
-            System.out.print("h(hit) / s(stand) / sp(split) / d(double) / q(quit)?: ");
+            System.out.print("< h(hit) / s(stand) / sp(split) / d(double) / q(quit)?: ");
             inputString = aScanner.nextLine();
 
             if (inputString.equals("h")) {
@@ -232,7 +234,7 @@ public class Blackjack {
 
     private static void reShoe(final CardShoe aCardShoe, final CardDiscardHolder aCardDiscardHolder) {
         // simulate physical card shuffling // TODO allow more efficient re-shoe
-        System.out.println("shuffling cards and re-shoe1");
+        System.out.println("> shuffling cards and re-shoe!");
         ArrayList<Card> cards = new ArrayList<Card>(aCardShoe.popRemainingCards());
         for (Game game : aCardDiscardHolder.getGames()) {
             cards.addAll(game.getDealerHand().getCards());
@@ -251,7 +253,7 @@ public class Blackjack {
         while (!(betAmount > 0)) {
             System.out.println("=======================");
 
-            System.out.print("Bet amount? (1-" + String.valueOf(aPlayer.getWallet().getTotalValue()) + "), q to quit: ");
+            System.out.print("< Bet amount? (1-" + String.valueOf(aPlayer.getWallet().getTotalValue()) + "), q to quit: ");
 
             String inputString = aScanner.nextLine();
 
@@ -259,17 +261,21 @@ public class Blackjack {
                 exitGame();
             }
 
-            betAmount = Integer.parseInt(inputString);
-            if (betAmount > aPlayer.getWallet().getTotalValue()) {
-                System.out.println("Bet amount, " + String.valueOf(betAmount) + ", exceed total chips, using highest available chips of " + String.valueOf(aPlayer.getWallet().getTotalValue()));
-                betAmount = aPlayer.getWallet().getTotalValue();
-            }
-
             try {
-                aPlayer.getWallet().decreaseValue(betAmount);
+                betAmount = Integer.parseInt(inputString);
+                if (betAmount > aPlayer.getWallet().getTotalValue()) {
+                    System.out.println("> Bet amount, " + String.valueOf(betAmount) + ", exceed total chips, using highest available chips of " + String.valueOf(aPlayer.getWallet().getTotalValue()));
+                    betAmount = aPlayer.getWallet().getTotalValue();
+                }
+
+                try {
+                    aPlayer.getWallet().decreaseValue(betAmount);
+                } catch (NegativeWalletValueException e) {
+                    // TODO
+                }
             }
-            catch (NegativeWalletValueException e) {
-                // TODO
+            catch (NumberFormatException e) {
+                System.out.println("> Invalid input!");
             }
         }
 
@@ -346,9 +352,5 @@ public class Blackjack {
         }
 
         return individualCardValueStringBuilder.toString() + " (" + aGameHand.getTotalCardsValue() + ")";
-    }
-
-    private static void handleInput(final String aInputString) {
-        System.out.println(aInputString);
     }
 }
