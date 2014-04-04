@@ -48,6 +48,7 @@ import com.ivanfoong.insightdataengineering.blackjack.user.Player;
 
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.Scanner;
 
 public class Blackjack {
@@ -59,6 +60,7 @@ public class Blackjack {
     private static final String UNKNOWN_CARD_VALUE_STRING = "?";
     private static final Integer DEALER_STAND_ON_TOTAL_CARDS_VALUE = 17;
     private static final Float BLACKJACK_WINNING_RATE = 3.0f/2.0f;
+    private static final Float INSURANCE_WINNING_RATE = 2.0f/1.0f;
 
     private static final boolean DEBUGGING = false;
 
@@ -104,9 +106,7 @@ public class Blackjack {
         printGameProgress(currentGame);
 
         // dealer ask for insurance first if his hand's first card is Ace
-        if (currentGame.getDealerHand().getCards().get(0).getCardValue() == CardValue.ACE) {
-            //doInsurancePhase();
-        }
+        doInsurancePhase(aScanner, currentGame);
 
         // dealer win if blackjack
         if (!currentGame.getDealerHand().hasBlackJack()) {
@@ -139,6 +139,53 @@ public class Blackjack {
         }
 
         return aPlayer.getWallet().getTotalValue() > 0;
+    }
+
+    private static void doInsurancePhase(final Scanner aScanner, final Game aGame) {
+        if (aGame.getDealerHand().getCards().get(0).getCardValue() == CardValue.ACE) {
+            Enumeration<Player> playerEnumeration = aGame.getPlayerGames().keys();
+            Hashtable<Player, Integer> insurancePot = new Hashtable<Player, Integer>();
+            while (playerEnumeration.hasMoreElements()) {
+                Player player = playerEnumeration.nextElement();
+
+                Integer insuranceAmount = -1;
+
+                while(insuranceAmount < 0) {
+                    System.out.print("< Insurance? (0-" + player.getWallet().getTotalValue() + ")");
+                    String inputString = aScanner.nextLine();
+                    insuranceAmount = Integer.parseInt(inputString);
+                }
+
+                if (insuranceAmount > 0) {
+                    player.getWallet().decreaseValue(insuranceAmount.doubleValue());
+                    insurancePot.put(player, insuranceAmount);
+                }
+            }
+
+            if (aGame.getDealerHand().hasBlackJack()) {
+                System.out.println("Dealer blackjack!");
+
+                playerEnumeration = aGame.getPlayerGames().keys();
+                while (playerEnumeration.hasMoreElements()) {
+                    Player player = playerEnumeration.nextElement();
+
+                    Integer insuranceAmount = insurancePot.get(player);
+
+                    if (insuranceAmount != null) {
+                        Float winInsuranceAmount = (insuranceAmount * INSURANCE_WINNING_RATE);
+                        player.getWallet().increaseValue(winInsuranceAmount.doubleValue());
+                        System.out.println(player.getName() + ": wins insurance total of " + String.format("%.2f",winInsuranceAmount));
+                    }
+                }
+            }
+            else {
+                System.out.println("Dealer not blackjack");
+
+                for (Integer insuranceAmount : insurancePot.values()) {
+                    aGame.getDealer().getWallet().increaseValue(insuranceAmount.doubleValue());
+                }
+            }
+        }
     }
 
     private static void resolveGame(final Game aGame) {
