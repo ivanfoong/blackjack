@@ -152,7 +152,7 @@ public class Blackjack {
                         gameStatus = GameStatus.LOSE;
                     }
                     else {
-                        gameStatus = GameStatus.DRAW;
+                        gameStatus = GameStatus.PUSH;
                     }
                 }
                 else {
@@ -177,8 +177,9 @@ public class Blackjack {
                     aGame.getDealer().getWallet().increaseValue(betAmount);
                     break;
                 }
-                case DRAW: {
+                case PUSH: {
                     status = "draw, " + String.valueOf(playerValue) + "(" + playerGame.getPlayer().getName() + ") vs " + String.valueOf(dealerValue) + "(dealer)";
+                    player.getWallet().increaseValue(betAmount);
                     break;
                 }
                 case BUST: {
