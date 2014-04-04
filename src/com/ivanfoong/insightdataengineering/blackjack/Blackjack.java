@@ -34,6 +34,7 @@ package com.ivanfoong.insightdataengineering.blackjack;
  */
 
 import com.ivanfoong.insightdataengineering.blackjack.card.Card;
+import com.ivanfoong.insightdataengineering.blackjack.card.CardValue;
 import com.ivanfoong.insightdataengineering.blackjack.card.Deck;
 import com.ivanfoong.insightdataengineering.blackjack.game.GameStatus;
 import com.ivanfoong.insightdataengineering.blackjack.game.PlayerGame;
@@ -57,6 +58,8 @@ public class Blackjack {
     private static final Integer BLACKJACK_INITIAL_DEALED_CARDS_COUNT = 2;
     private static final String UNKNOWN_CARD_VALUE_STRING = "?";
     private static final Integer DEALER_STAND_ON_TOTAL_CARDS_VALUE = 17;
+    private static final Float BLACKJACK_WINNING_RATE = 3.0f/2.0f;
+
     private static final boolean DEBUGGING = false;
 
     public static void main(final String[] aArguments) {
@@ -100,22 +103,29 @@ public class Blackjack {
         Game currentGame = dealCards(aCardShoe, aDealer, players, betAmount);
         printGameProgress(currentGame);
 
-        // query user actions
-        boolean allPlayerBust = true;
-        Enumeration<Player> playerEnumeration = currentGame.getPlayerGames().keys();
-        while (playerEnumeration.hasMoreElements()) {
-            Player player = playerEnumeration.nextElement();
-            PlayerGame playerGame = currentGame.getPlayerGame(player);
-            playerAction(aScanner, playerGame, aCardShoe);
-            if (!playerGame.hasBust()) {
-                allPlayerBust = false;
-            }
+        // dealer ask for insurance first if his hand's first card is Ace
+        if (currentGame.getDealerHand().getCards().get(0).getCardValue() == CardValue.ACE) {
+            //doInsurancePhase();
         }
 
+        // dealer win if blackjack
+        if (!currentGame.getDealerHand().hasBlackJack()) {
+            // query user actions
+            boolean allPlayerBust = true;
+            Enumeration<Player> playerEnumeration = currentGame.getPlayerGames().keys();
+            while (playerEnumeration.hasMoreElements()) {
+                Player player = playerEnumeration.nextElement();
+                PlayerGame playerGame = currentGame.getPlayerGame(player);
+                playerAction(aScanner, playerGame, aCardShoe);
+                if (!playerGame.getGameHand().hasBust()) {
+                    allPlayerBust = false;
+                }
+            }
 
-        if (!allPlayerBust) {
-            // process dealer actions
-            dealerAction(currentGame.getDealerHand(), aCardShoe);
+            if (!allPlayerBust) {
+                // process dealer actions
+                dealerAction(currentGame.getDealerHand(), aCardShoe);
+            }
         }
 
         // resolve winning/losing
@@ -143,7 +153,16 @@ public class Blackjack {
             Integer playerValue = playerGame.getGameHand().getTotalCardsValue();
 
             GameStatus gameStatus;
-            if (playerValue <= 21) {
+            if (playerGame.getGameHand().hasBlackJack() && aGame.getDealerHand().hasBlackJack()) {
+                gameStatus = GameStatus.PUSH;
+            }
+            else if (playerGame.getGameHand().hasBlackJack()) {
+                gameStatus = GameStatus.WIN_BLACKJACK;
+            }
+            else if (aGame.getDealerHand().hasBlackJack()) {
+                gameStatus = GameStatus.LOSE_BLACKJACK;
+            }
+            else if (playerValue <= 21) {
                 if (dealerValue <= 21) {
                     if (playerValue > dealerValue) {
                         gameStatus = GameStatus.WIN;
@@ -163,9 +182,20 @@ public class Blackjack {
                 gameStatus = GameStatus.BUST;
             }
 
-            final Integer betAmount = playerGame.getBetAmount();
+            final Double betAmount = playerGame.getBetAmount().doubleValue();
             String status = "";
             switch (gameStatus) {
+                case WIN_BLACKJACK: {
+                    status = "win, Blackjack!(" + playerGame.getPlayer().getName() + ") vs " + String.valueOf(dealerValue) + "(dealer)";
+                    player.getWallet().increaseValue(betAmount+(betAmount*BLACKJACK_WINNING_RATE));
+                    aGame.getDealer().getWallet().decreaseValue(betAmount*BLACKJACK_WINNING_RATE);
+                    break;
+                }
+                case LOSE_BLACKJACK: {
+                    status = "lose, " + String.valueOf(playerValue) + "(" + playerGame.getPlayer().getName() + ") vs Blackjack!(dealer)";
+                    aGame.getDealer().getWallet().increaseValue(betAmount);
+                    break;
+                }
                 case WIN: {
                     status = "win, " + String.valueOf(playerValue) + "(" + playerGame.getPlayer().getName() + ") vs " + String.valueOf(dealerValue) + "(dealer)";
                     player.getWallet().increaseValue(betAmount*2);
@@ -191,7 +221,7 @@ public class Blackjack {
                     break;
                 }
             }
-            System.out.println("- - - - - - - - - - - -");
+            System.out.println("- - - - - - - - - - - - - - - - - - -");
             System.out.println(player.getName() + " " + status + "!");
         }
     }
@@ -251,9 +281,9 @@ public class Blackjack {
     private static Integer placeBet(final Scanner aScanner, final Player aPlayer) {
         Integer betAmount = 0;
         while (!(betAmount > 0)) {
-            System.out.println("=======================");
+            System.out.println("=====================================");
 
-            System.out.print("< Bet amount? (1-" + String.valueOf(aPlayer.getWallet().getTotalValue()) + "), q to quit: ");
+            System.out.print("< Bet amount? (1-" + String.valueOf(aPlayer.getWallet().getTotalValue().intValue()) + "), q to quit: ");
 
             String inputString = aScanner.nextLine();
 
@@ -265,11 +295,11 @@ public class Blackjack {
                 betAmount = Integer.parseInt(inputString);
                 if (betAmount > aPlayer.getWallet().getTotalValue()) {
                     System.out.println("> Bet amount, " + String.valueOf(betAmount) + ", exceed total chips, using highest available chips of " + String.valueOf(aPlayer.getWallet().getTotalValue()));
-                    betAmount = aPlayer.getWallet().getTotalValue();
+                    betAmount = aPlayer.getWallet().getTotalValue().intValue();
                 }
 
                 try {
-                    aPlayer.getWallet().decreaseValue(betAmount);
+                    aPlayer.getWallet().decreaseValue(betAmount.doubleValue());
                 } catch (NegativeWalletValueException e) {
                     // TODO
                 }

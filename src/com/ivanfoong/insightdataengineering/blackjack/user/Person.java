@@ -9,7 +9,7 @@ public class Person {
     private Wallet mWallet;
 
     public Person(final Integer aTotalValue) {
-        mWallet = new Wallet(aTotalValue);
+        mWallet = new Wallet(aTotalValue.doubleValue());
     }
 
     public Wallet getWallet() {

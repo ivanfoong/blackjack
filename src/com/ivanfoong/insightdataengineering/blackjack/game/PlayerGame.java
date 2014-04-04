@@ -27,6 +27,4 @@ public class PlayerGame {
     public Integer getBetAmount() {
         return mBetAmount;
     }
-
-    public boolean hasBust() { return mGameHand.getTotalCardsValue() > 21; }
 }

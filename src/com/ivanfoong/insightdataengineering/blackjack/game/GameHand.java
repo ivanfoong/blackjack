@@ -96,4 +96,8 @@ public class GameHand {
 
         return totalCardValue;
     }
+
+    public boolean hasBust() { return getTotalCardsValue() > 21; }
+
+    public boolean hasBlackJack() { return getTotalCardsValue() == 21 && getCards().size() == 2; }
 }
