@@ -260,7 +260,7 @@ public class Blackjack {
                     break;
                 }
                 case BUST: {
-                    status = "bust";
+                    status = "bust, " + String.valueOf(playerValue) + "(" + playerGame.getPlayer().getName() + ")";
                     aGame.getDealer().getWallet().increaseValue(betAmount);
                     break;
                 }
