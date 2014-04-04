@@ -31,6 +31,8 @@ package com.ivanfoong.insightdataengineering.blackjack;
  * Dealer: A Q (Blackjack)
  * You: A 9 (20)
  * Result: You lost! (Chip: 99)
+ *
+ * TODO correct multi player phase support for player bust and blackjack scenarios
  */
 
 import com.ivanfoong.insightdataengineering.blackjack.card.Card;
@@ -112,6 +114,7 @@ public class Blackjack {
         if (!currentGame.getDealerHand().hasBlackJack()) {
             // query user actions
             boolean allPlayerBust = true;
+            boolean allPlayerBlackjack = true;
             Enumeration<Player> playerEnumeration = currentGame.getPlayerGames().keys();
             while (playerEnumeration.hasMoreElements()) {
                 Player player = playerEnumeration.nextElement();
@@ -120,9 +123,13 @@ public class Blackjack {
                 if (!playerGame.getGameHand().hasBust()) {
                     allPlayerBust = false;
                 }
+
+                if (!playerGame.getGameHand().hasBlackJack()) {
+                    allPlayerBlackjack = false;
+                }
             }
 
-            if (!allPlayerBust) {
+            if (!allPlayerBust && !allPlayerBlackjack) {
                 // process dealer actions
                 dealerAction(currentGame.getDealerHand(), aCardShoe);
             }
