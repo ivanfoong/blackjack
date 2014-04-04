@@ -255,7 +255,7 @@ public class Blackjack {
                     break;
                 }
                 case PUSH: {
-                    status = "draw, " + String.valueOf(playerValue) + "(" + playerGame.getPlayer().getName() + ") vs " + String.valueOf(dealerValue) + "(dealer)";
+                    status = "pushed, " + String.valueOf(playerValue) + "(" + playerGame.getPlayer().getName() + ") vs " + String.valueOf(dealerValue) + "(dealer)";
                     player.getWallet().increaseValue(betAmount);
                     break;
                 }
