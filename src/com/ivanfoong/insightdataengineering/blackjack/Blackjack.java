@@ -14,7 +14,7 @@ package com.ivanfoong.insightdataengineering.blackjack;
  * # insurance
  * Dealer: A ?
  * You: 2 3 (5)
- * insurance? (1-99) / no: no
+ * insurance? (0-99): no
  * h(hit) / s(stand) / sp(split)?: h
  *
  * # game draw result
@@ -151,7 +151,7 @@ public class Blackjack {
                 Integer insuranceAmount = -1;
 
                 while(insuranceAmount < 0) {
-                    System.out.print("< Insurance? (0-" + player.getWallet().getTotalValue() + ")");
+                    System.out.print("< Insurance? (0-" + player.getWallet().getTotalValue() + "): ");
                     String inputString = aScanner.nextLine();
                     insuranceAmount = Integer.parseInt(inputString);
                 }
