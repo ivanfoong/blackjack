@@ -6,7 +6,7 @@ package com.ivanfoong.insightdataengineering.blackjack.user;
 public class Player extends Person {
     private String mName;
 
-    public Player(final Integer aTotalValue, final String aName) {
+    public Player(final Double aTotalValue, final String aName) {
         super(aTotalValue);
         mName = aName;
     }

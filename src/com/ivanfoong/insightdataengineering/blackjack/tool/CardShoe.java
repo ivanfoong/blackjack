@@ -34,8 +34,10 @@ public class CardShoe {
         return firstCard;
     }
 
-    public void shuffleCards() {
-        Collections.shuffle(mCards);
+    public void shuffleCards(final Integer aShuffleCount) {
+        for (int i=0; i < aShuffleCount; i++) {
+            Collections.shuffle(mCards);
+        }
     }
 
     public boolean requireNewShoe() {

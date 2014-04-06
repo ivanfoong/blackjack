@@ -8,8 +8,8 @@ import com.ivanfoong.insightdataengineering.blackjack.wallet.Wallet;
 public class Person {
     private Wallet mWallet;
 
-    public Person(final Integer aTotalValue) {
-        mWallet = new Wallet(aTotalValue.doubleValue());
+    public Person(final Double aTotalValue) {
+        mWallet = new Wallet(aTotalValue);
     }
 
     public Wallet getWallet() {

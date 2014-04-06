@@ -2,19 +2,22 @@ package com.ivanfoong.insightdataengineering.blackjack.game;
 
 import com.ivanfoong.insightdataengineering.blackjack.user.Player;
 
+import java.util.ArrayList;
+
 /**
  * Created by ivanfoong on 4/4/14.
  */
 public class PlayerGame {
     private Player mPlayer;
-    private GameHand mGameHand;
+    private ArrayList<GameHand> mGameHands;
     private Integer mBetAmount;
     private boolean isDoubleBet;
 
-    public PlayerGame(final Player aPlayer, final GameHand aGameHand, final Integer aBetAmount) {
+    public PlayerGame(final Player aPlayer, final Integer aBetAmount) {
         mPlayer = aPlayer;
-        mGameHand = aGameHand;
         mBetAmount = aBetAmount;
+        mGameHands = new ArrayList<GameHand>();
+        mGameHands.add(new GameHand());
         isDoubleBet = false;
     }
 
@@ -22,8 +25,12 @@ public class PlayerGame {
         return mPlayer;
     }
 
-    public GameHand getGameHand() {
-        return mGameHand;
+    public ArrayList<GameHand> getGameHands() {
+        return mGameHands;
+    }
+
+    public void addGameHand(GameHand aGameHand) {
+        mGameHands.add(aGameHand);
     }
 
     public Integer getBetAmount() {
