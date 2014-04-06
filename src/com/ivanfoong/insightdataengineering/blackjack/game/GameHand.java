@@ -100,4 +100,21 @@ public class GameHand {
     public boolean hasBust() { return getTotalCardsValue() > 21; }
 
     public boolean hasBlackJack() { return getTotalCardsValue() == 21 && getCards().size() == 2; }
+
+    public String generateDealerProgressCardValueString(final String aUnknownCardValueString) {
+        return getCards().get(0).getCardValueString() + "," + aUnknownCardValueString;
+    }
+
+    public String generateCardValueString() {
+        StringBuilder individualCardValueStringBuilder = new StringBuilder();
+
+        for (Card card : getCards()) {
+            if (individualCardValueStringBuilder.length() > 0) {
+                individualCardValueStringBuilder.append(",");
+            }
+            individualCardValueStringBuilder.append(card.getCardValueString());
+        }
+
+        return individualCardValueStringBuilder.toString() + " (" + getTotalCardsValue() + ")";
+    }
 }

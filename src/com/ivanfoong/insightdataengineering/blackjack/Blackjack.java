@@ -328,13 +328,13 @@ public class Blackjack {
     }
 
     private void dealerAction(final GameHand aDealerGameHand, final CardShoe aCardShoe) {
-        System.out.println("Dealer: " + generateCardValueString(aDealerGameHand));
+        System.out.println("Dealer: " + aDealerGameHand.generateCardValueString());
 
         while (aDealerGameHand.getTotalCardsValue() < DEALER_STAND_ON_TOTAL_CARDS_VALUE) {
             Card dealedCard = aCardShoe.popFirstCard();
             System.out.println("> Dealer receives " + dealedCard.getCardValueString() + "!");
             aDealerGameHand.addCard(dealedCard);
-            System.out.println("Dealer: " + generateCardValueString(aDealerGameHand));
+            System.out.println("Dealer: " + aDealerGameHand.generateCardValueString());
         }
     }
 
@@ -374,13 +374,8 @@ public class Blackjack {
                     newGameHand.getCards().add(aCardShoe.popFirstCard());
 
                     aPlayerGame.addGameHand(newGameHand);
-                    System.out.println(gameHandProcessQueue.size());
                     gameHandProcessQueue.addFirst(newGameHand);
-
-                    System.out.println(gameHandProcessQueue.size());
-
                     gameHandProcessQueue.addFirst(gameHand);
-                    System.out.println(gameHandProcessQueue.size());
                     gameHandIndex--;
                     break;
                 }
@@ -485,8 +480,8 @@ public class Blackjack {
     }
 
     private void printGameProgress(final GameHand aDealerGameHand, final String aPlayerName, final GameHand aPlayerGameHand, final Integer aPlayerGameHandIndex) {
-        System.out.println("Dealer: " + generateDealerProgressCardValueString(aDealerGameHand));
-        System.out.println(aPlayerName + " Game#" + String.valueOf(aPlayerGameHandIndex) + ": " + generateCardValueString(aPlayerGameHand));
+        System.out.println("Dealer: " + aDealerGameHand.generateDealerProgressCardValueString(UNKNOWN_CARD_VALUE_STRING));
+        System.out.println(aPlayerName + " Game#" + String.valueOf(aPlayerGameHandIndex) + ": " + aPlayerGameHand.generateCardValueString());
     }
 
     private void printDiscardedCards(final CardDiscardHolder aCardDiscardHolder) {
@@ -500,22 +495,5 @@ public class Blackjack {
             }
         }
         System.out.println(String.valueOf(cardDiscardedCount) + " cards in discard holder");
-    }
-
-    private String generateDealerProgressCardValueString(final GameHand aDealerHand) {
-        return aDealerHand.getCards().get(0).getCardValueString() + "," + UNKNOWN_CARD_VALUE_STRING;
-    }
-
-    private String generateCardValueString(final GameHand aGameHand) {
-        StringBuilder individualCardValueStringBuilder = new StringBuilder();
-
-        for (Card card : aGameHand.getCards()) {
-            if (individualCardValueStringBuilder.length() > 0) {
-                individualCardValueStringBuilder.append(",");
-            }
-            individualCardValueStringBuilder.append(card.getCardValueString());
-        }
-
-        return individualCardValueStringBuilder.toString() + " (" + aGameHand.getTotalCardsValue() + ")";
     }
 }
