@@ -2,6 +2,7 @@ package com.ivanfoong.insightdataengineering.blackjack.tool;
 
 import com.ivanfoong.insightdataengineering.blackjack.card.Card;
 
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -36,7 +37,8 @@ public class CardShoe {
 
     public void shuffleCards(final Integer aShuffleCount) {
         for (int i=0; i < aShuffleCount; i++) {
-            Collections.shuffle(mCards);
+            SecureRandom secureRandom = new SecureRandom();
+            Collections.shuffle(mCards, secureRandom);
         }
     }
 
