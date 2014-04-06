@@ -60,6 +60,7 @@ public class Blackjack {
     private static final Double PLAYER_STARTING_TOTAL_CHIP_VALUE = 100.0;
     private static final Double MINIMUM_BET_AMOUNT = 1.0;
     private static final Integer SHUFFLE_COUNT = 3;
+    private static final Boolean SHOW_CARD_SUIT = false;
     // END configurations
 
     // START game rules
@@ -75,12 +76,12 @@ public class Blackjack {
     public static void main(final String[] aArguments) {
         Blackjack blackjack = new Blackjack();
         blackjack.start(CARD_SHOE_NUMBER_OF_DECKS, CARD_SHOE_MINIMUM_CARDS_COUNT, DEALER_STARTING_TOTAL_CHIP_VALUE
-                , PLAYER_STARTING_TOTAL_CHIP_VALUE, MINIMUM_BET_AMOUNT, SHUFFLE_COUNT);
+                , PLAYER_STARTING_TOTAL_CHIP_VALUE, MINIMUM_BET_AMOUNT, SHUFFLE_COUNT, SHOW_CARD_SUIT);
     }
 
     public void start(final Integer aDeckCount, final Integer aShoeMinimumCardsCount,
                        final Double aDealerStartingChipsValue, final Double aPlayerStartingChipsValue,
-                       final Double aMinimumBetAmount, final Integer aShuffleCount) {
+                       final Double aMinimumBetAmount, final Integer aShuffleCount, final Boolean aShowCardSuit) {
         // START setup
         ArrayList<Card> cards = new ArrayList<Card>();
         for (int i=0; i < aDeckCount; i++) {
@@ -95,7 +96,7 @@ public class Blackjack {
         Scanner scanner = new Scanner(System.in);
         // END setup
 
-        while (startGame(scanner, cardShoe, cardDiscardHolder, dealer, player, aMinimumBetAmount, aShuffleCount)) {}
+        while (startGame(scanner, cardShoe, cardDiscardHolder, dealer, player, aMinimumBetAmount, aShuffleCount, aShowCardSuit)) {}
 
         // START cleanup
         scanner.close();
@@ -106,7 +107,8 @@ public class Blackjack {
 
     private boolean startGame(final Scanner aScanner, final CardShoe aCardShoe,
                                      final CardDiscardHolder aCardDiscardHolder, final Dealer aDealer,
-                                     final Player aPlayer, final Double aMinimumBetAmount, final Integer aShuffleCount) {
+                                     final Player aPlayer, final Double aMinimumBetAmount, final Integer aShuffleCount,
+                                     final Boolean aShowCardSuit) {
         if (aCardShoe.requireNewShoe()) {
             reShoe(aCardShoe, aCardDiscardHolder, aShuffleCount);
         }
@@ -119,7 +121,7 @@ public class Blackjack {
         Game currentGame = dealCards(aCardShoe, aDealer, players, betAmount);
 
         // dealer ask for insurance first if his hand's first card is Ace
-        doInsurancePhase(aScanner, currentGame);
+        doInsurancePhase(aScanner, currentGame, aShowCardSuit);
 
         // dealer win if blackjack
         if (!currentGame.getDealerHand().hasBlackJack()) {
@@ -130,7 +132,7 @@ public class Blackjack {
             while (playerEnumeration.hasMoreElements()) {
                 Player player = playerEnumeration.nextElement();
                 PlayerGame playerGame = currentGame.getPlayerGame(player);
-                playerAction(aScanner, currentGame.getDealerHand(), playerGame, aCardShoe);
+                playerAction(aScanner, currentGame.getDealerHand(), playerGame, aCardShoe, aShowCardSuit);
                 for (GameHand gameHand : playerGame.getGameHands()) {
                     if (allPlayerBust && !gameHand.hasBust()) {
                         allPlayerBust = false;
@@ -144,7 +146,7 @@ public class Blackjack {
 
             if (!allPlayerBust && !allPlayerBlackjack) {
                 // process dealer actions
-                dealerAction(currentGame.getDealerHand(), aCardShoe);
+                dealerAction(currentGame.getDealerHand(), aCardShoe, aShowCardSuit);
             }
         }
 
@@ -161,7 +163,7 @@ public class Blackjack {
         return aPlayer.getWallet().getTotalValue() > 0;
     }
 
-    private void doInsurancePhase(final Scanner aScanner, final Game aGame) {
+    private void doInsurancePhase(final Scanner aScanner, final Game aGame, final Boolean aShowCardSuit) {
         if (aGame.getDealerHand().getCards().get(0).getCardValue() == CardValue.ACE) {
 
             Enumeration<Player> playerEnumeration = aGame.getPlayerGames().keys();
@@ -176,7 +178,7 @@ public class Blackjack {
                     gameHandIndex++;
                     while(!gameHand.hasBlackJack() && insuranceAmount < 0) {
                         printDivider();
-                        printGameProgress(aGame.getDealerHand(), player.getName(), gameHand, gameHandIndex);
+                        printGameProgress(aGame.getDealerHand(), player.getName(), gameHand, gameHandIndex, aShowCardSuit);
                         System.out.println("> Dealer has Ace!");
                         System.out.print("< Insurance? (0-" + player.getWallet().getTotalValue() + "): ");
                         String inputString = aScanner.nextLine();
@@ -327,20 +329,19 @@ public class Blackjack {
         }
     }
 
-    private void dealerAction(final GameHand aDealerGameHand, final CardShoe aCardShoe) {
-        System.out.println("Dealer: " + aDealerGameHand.generateCardValueString());
+    private void dealerAction(final GameHand aDealerGameHand, final CardShoe aCardShoe, final Boolean aShowCardSuit) {
+        System.out.println("Dealer: " + aDealerGameHand.generateCardValueString(aShowCardSuit));
 
         while (aDealerGameHand.getTotalCardsValue() < DEALER_STAND_ON_TOTAL_CARDS_VALUE) {
             Card dealedCard = aCardShoe.popFirstCard();
             System.out.println("> Dealer receives " + dealedCard.getCardValueString() + "!");
             aDealerGameHand.addCard(dealedCard);
-            System.out.println("Dealer: " + aDealerGameHand.generateCardValueString());
+            System.out.println("Dealer: " + aDealerGameHand.generateCardValueString(aShowCardSuit));
         }
     }
 
-    private void playerAction(final Scanner aScanner, final GameHand aDealerGameHand, final PlayerGame aPlayerGame, final CardShoe aCardShoe) {
-
-
+    private void playerAction(final Scanner aScanner, final GameHand aDealerGameHand, final PlayerGame aPlayerGame,
+                              final CardShoe aCardShoe, final Boolean aShowCardSuit) {
         LinkedList<GameHand> gameHandProcessQueue = new LinkedList<GameHand>(aPlayerGame.getGameHands());
 
         int gameHandIndex = 0;
@@ -350,7 +351,7 @@ public class Blackjack {
             GameHand gameHand = gameHandProcessQueue.pop();
             while(gameHand.getTotalCardsValue() < 21 && !inputString.equals("s")) {
                 printDivider();
-                printGameProgress(aDealerGameHand, aPlayerGame.getPlayer().getName(), gameHand, gameHandIndex);
+                printGameProgress(aDealerGameHand, aPlayerGame.getPlayer().getName(), gameHand, gameHandIndex, aShowCardSuit);
 
                 boolean isDoublePossible = (gameHand.getCards().size() == 2);
                 boolean isSplitPossible = isDoublePossible && (gameHand.getCards().get(0).getCardValue() == gameHand.getCards().get(1).getCardValue());
@@ -369,9 +370,15 @@ public class Blackjack {
                     newGameHand.addCard(card2);
 
                     gameHand.getCards().remove(card2);
-                    gameHand.getCards().add(aCardShoe.popFirstCard());
+                    Card newCard = aCardShoe.popFirstCard();
+                    gameHand.getCards().add(newCard);
+                    System.out.println("> " + aPlayerGame.getPlayer().getName() + " receives " + newCard.getCardValueString() + ", total: " + String.valueOf(gameHand.getTotalCardsValue()));
+                    System.out.println(aPlayerGame.getPlayer().getName() + " Game#" + String.valueOf(gameHandIndex) + ": " + gameHand.generateCardValueString(aShowCardSuit));
 
-                    newGameHand.getCards().add(aCardShoe.popFirstCard());
+                    newCard = aCardShoe.popFirstCard();
+                    newGameHand.getCards().add(newCard);
+                    System.out.println("> " + aPlayerGame.getPlayer().getName() + " receives " + newCard.getCardValueString() + ", total: " + String.valueOf(newGameHand.getTotalCardsValue()));
+                    System.out.println(aPlayerGame.getPlayer().getName() + " Game#" + String.valueOf(gameHandIndex+1) + ": " + newGameHand.generateCardValueString(aShowCardSuit));
 
                     aPlayerGame.addGameHand(newGameHand);
                     gameHandProcessQueue.addFirst(newGameHand);
@@ -479,9 +486,11 @@ public class Blackjack {
         return newGame;
     }
 
-    private void printGameProgress(final GameHand aDealerGameHand, final String aPlayerName, final GameHand aPlayerGameHand, final Integer aPlayerGameHandIndex) {
-        System.out.println("Dealer: " + aDealerGameHand.generateDealerProgressCardValueString(UNKNOWN_CARD_VALUE_STRING));
-        System.out.println(aPlayerName + " Game#" + String.valueOf(aPlayerGameHandIndex) + ": " + aPlayerGameHand.generateCardValueString());
+    private void printGameProgress(final GameHand aDealerGameHand, final String aPlayerName,
+                                   final GameHand aPlayerGameHand, final Integer aPlayerGameHandIndex,
+                                   final Boolean aShowCardSuit) {
+        System.out.println("Dealer: " + aDealerGameHand.generateDealerProgressCardValueString(UNKNOWN_CARD_VALUE_STRING, aShowCardSuit));
+        System.out.println(aPlayerName + " Game#" + String.valueOf(aPlayerGameHandIndex) + ": " + aPlayerGameHand.generateCardValueString(aShowCardSuit));
     }
 
     private void printDiscardedCards(final CardDiscardHolder aCardDiscardHolder) {

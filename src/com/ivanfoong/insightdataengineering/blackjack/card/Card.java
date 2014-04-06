@@ -18,6 +18,26 @@ public class Card {
         return mCardSuit;
     }
 
+    public String getCardSuitString() {
+        switch (mCardSuit) {
+            case DIAMOND: {
+                return "D";
+            }
+            case HEART: {
+                return "H";
+            }
+            case CLUBS: {
+                return "C";
+            }
+            case SPADE: {
+                return "S";
+            }
+            default: {
+                return "";
+            }
+        }
+    }
+
     public CardValue getCardValue() {
         return mCardValue;
     }

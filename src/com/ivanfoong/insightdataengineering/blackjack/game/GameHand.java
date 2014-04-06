@@ -101,11 +101,20 @@ public class GameHand {
 
     public boolean hasBlackJack() { return getTotalCardsValue() == 21 && getCards().size() == 2; }
 
-    public String generateDealerProgressCardValueString(final String aUnknownCardValueString) {
-        return getCards().get(0).getCardValueString() + "," + aUnknownCardValueString;
+    public String generateDealerProgressCardValueString(final String aUnknownCardValueString, final Boolean aShowCardSuit) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(getCards().get(0).getCardValueString());
+
+        if (aShowCardSuit) {
+            sb.append(getCards().get(0).getCardSuitString());
+        }
+        sb.append(",");
+        sb.append(aUnknownCardValueString);
+
+        return sb.toString();
     }
 
-    public String generateCardValueString() {
+    public String generateCardValueString(final Boolean aShowCardsuit) {
         StringBuilder individualCardValueStringBuilder = new StringBuilder();
 
         for (Card card : getCards()) {
@@ -113,6 +122,10 @@ public class GameHand {
                 individualCardValueStringBuilder.append(",");
             }
             individualCardValueStringBuilder.append(card.getCardValueString());
+
+            if (aShowCardsuit) {
+                individualCardValueStringBuilder.append(card.getCardSuitString());
+            }
         }
 
         return individualCardValueStringBuilder.toString() + " (" + getTotalCardsValue() + ")";
