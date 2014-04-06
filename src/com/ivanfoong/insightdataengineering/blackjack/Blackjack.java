@@ -4,6 +4,9 @@ package com.ivanfoong.insightdataengineering.blackjack;
  * Created by ivanfoong on 4/4/14
  *
  * Based on blackjack rules mentioned at http://en.wikipedia.org/wiki/Blackjack
+ * Assuming dealer to stand on soft 17
+ *
+ * Sample usage
  *
  * # setting amount for next bet
  * Bet amount? (1-100): 1
